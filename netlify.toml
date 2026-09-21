@@ -1,0 +1,16 @@
+# Netlify Configuration File
+
+[build]
+  publish = "."
+
+# Serve index.html as the primary website homepage
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+# Block web access to dashboard.html by redirecting to home
+[[redirects]]
+  from = "/dashboard.html"
+  to = "/"
+  status = 302

@@ -61,22 +61,7 @@ const gymConfig = {
     /* ============================= */
 
     auth: {
-        enabled: true,
-        // Configured authorized accounts allowed to access Admin Dashboard
-        adminAccounts: [
-            {
-                username: "admin",
-                password: "ironforge2026",
-                name: "Gym Owner",
-                role: "Super Admin"
-            },
-            {
-                username: "manager",
-                password: "gymflex123",
-                name: "Front Desk Manager",
-                role: "Manager"
-            }
-        ],
+        enabled: false,
         sessionStorageKey: "ironforge_admin_session"
     },
 

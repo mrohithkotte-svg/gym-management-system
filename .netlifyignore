@@ -1,0 +1,4 @@
+# Files ignored by Netlify during deployment
+dashboard.html
+GOOGLE_SHEETS_SETUP.md
+Code.gs

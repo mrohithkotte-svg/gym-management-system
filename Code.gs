@@ -17,15 +17,8 @@
 function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    
-    // Auto-create styled headers if sheet is empty
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Timestamp", "Name", "Email", "Phone", "Fitness Goal", "Message", "Status"]);
-      var headerRange = sheet.getRange(1, 1, 1, 7);
-      headerRange.setFontWeight("bold");
-      headerRange.setBackground("#ff3c00");
-      headerRange.setFontColor("#ffffff");
-    }
+
+    var headers = ensureHeaders(sheet);
     
     var data = {};
     if (e.postData && e.postData.contents) {
@@ -42,11 +35,26 @@ function doPost(e) {
     var name = data.name || "";
     var email = data.email || "";
     var phone = data.phone || "";
+    var plan = data.plan || "";
     var goal = data.goal || "";
     var message = data.message || "";
     var status = data.status || "New";
     
-    sheet.appendRow([timestamp, name, email, phone, goal, message, status]);
+    var row = [];
+    for (var column = 0; column < headers.length; column++) {
+      var header = normalizeHeader(headers[column]);
+      if (header === "timestamp" || header === "date" || header === "time") row.push(timestamp);
+      else if (header === "name" || header === "fullname") row.push(name);
+      else if (header === "email") row.push(email);
+      else if (header === "phone" || header === "mobile") row.push(phone);
+      else if (header === "membershipplan" || header === "plan") row.push(plan);
+      else if (header === "fitnessgoal" || header === "goal") row.push(goal);
+      else if (header === "message" || header === "enquiry") row.push(message);
+      else if (header === "status") row.push(status);
+      else row.push("");
+    }
+
+    sheet.appendRow(row);
     
     return ContentService.createTextOutput(JSON.stringify({
       result: "success",
@@ -65,37 +73,75 @@ function doGet(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var rows = sheet.getDataRange().getValues();
-    
+
     if (rows.length <= 1) {
-      return ContentService.createTextOutput(JSON.stringify({
+      var emptyResponse = {
         result: "success",
         data: []
-      })).setMimeType(ContentService.MimeType.JSON);
+      };
+      var emptyCallback = e && e.parameter ? e.parameter.callback : "";
+      if (emptyCallback && /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(emptyCallback)) {
+        return ContentService.createTextOutput(emptyCallback + "(" + JSON.stringify(emptyResponse) + ");")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(JSON.stringify(emptyResponse))
+        .setMimeType(ContentService.MimeType.JSON);
     }
     
+    var headers = rows[0];
+    var columns = {};
+    for (var headerIndex = 0; headerIndex < headers.length; headerIndex++) {
+      columns[normalizeHeader(headers[headerIndex])] = headerIndex;
+    }
+
+    var valueFor = function(row, names) {
+      for (var nameIndex = 0; nameIndex < names.length; nameIndex++) {
+        var columnIndex = columns[names[nameIndex]];
+        if (columnIndex !== undefined && row[columnIndex] !== "" && row[columnIndex] !== null) {
+          return row[columnIndex].toString();
+        }
+      }
+      return "";
+    };
+
     var enquiries = [];
     
     for (var i = 1; i < rows.length; i++) {
       var row = rows[i];
-      // Ignore completely empty rows
-      if (!row[1] && !row[2] && !row[3]) continue;
+      var name = valueFor(row, ["name", "fullname"]);
+      var email = valueFor(row, ["email"]);
+      var phone = valueFor(row, ["phone", "mobile"]);
+      var message = valueFor(row, ["message", "enquiry"]);
+      if (!name && !email && !phone && !message) continue;
       
       enquiries.push({
         id: i,
-        date: row[0] ? row[0].toString() : "",
-        name: row[1] ? row[1].toString() : "",
-        email: row[2] ? row[2].toString() : "",
-        phone: row[3] ? row[3].toString() : "",
-        goal: row[4] ? row[4].toString() : "",
-        message: row[5] ? row[5].toString() : "",
-        status: row[6] ? row[6].toString() : "New"
+        date: valueFor(row, ["timestamp", "date", "time"]),
+        name: name,
+        email: email,
+        phone: phone,
+        plan: valueFor(row, ["membershipplan", "plan"]),
+        goal: valueFor(row, ["fitnessgoal", "goal"]),
+        message: message,
+        status: valueFor(row, ["status"]) || "New"
       });
     }
     
-    return ContentService.createTextOutput(JSON.stringify({
+    var response = {
       result: "success",
       data: enquiries
-    })).setMimeType(ContentService.MimeType.JSON);
+    };
+
+    // JSONP lets the dashboard read lead data when the Apps Script deployment
+    // does not include CORS headers.
+    var callback = e && e.parameter ? e.parameter.callback : "";
+    if (callback && /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
+      return ContentService.createTextOutput(callback + "(" + JSON.stringify(response) + ");")
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify(response))
+      .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({
@@ -103,4 +149,33 @@ function doGet(e) {
       error: error.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function normalizeHeader(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function ensureHeaders(sheet) {
+  if (sheet.getLastRow() === 0) {
+    var initialHeaders = ["Timestamp", "Name", "Email", "Phone", "Membership Plan", "Fitness Goal", "Message", "Status"];
+    sheet.appendRow(initialHeaders);
+    var headerRange = sheet.getRange(1, 1, 1, initialHeaders.length);
+    headerRange.setFontWeight("bold");
+    headerRange.setBackground("#ff3c00");
+    headerRange.setFontColor("#ffffff");
+    return initialHeaders;
+  }
+
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var hasPlan = headers.some(function(header) {
+    var normalized = normalizeHeader(header);
+    return normalized === "membershipplan" || normalized === "plan";
+  });
+
+  if (!hasPlan) {
+    headers.push("Membership Plan");
+    sheet.getRange(1, headers.length).setValue("Membership Plan");
+  }
+
+  return headers;
 }

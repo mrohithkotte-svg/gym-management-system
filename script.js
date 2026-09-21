@@ -528,6 +528,7 @@ function renderPlans() {
 
                     <a
                         href="#contact"
+                        onclick="selectPlan('${escapeHTML(plan.name)}')"
                         class="
                             btn
                             ${plan.featured
@@ -544,6 +545,21 @@ function renderPlans() {
             `;
 
         }).join("");
+
+}
+
+
+function selectPlan(planName) {
+
+    const select =
+        getElement("membershipPlan");
+
+
+    if (select) {
+
+        select.value = planName;
+
+    }
 
 }
 
@@ -860,6 +876,13 @@ function setupContactForm() {
                 getElement("phone").value.trim();
 
 
+            const planSelect =
+                getElement("membershipPlan");
+
+            const plan =
+                planSelect ? planSelect.value : "General Inquiry";
+
+
             const goal =
                 getElement("fitnessGoal").value;
 
@@ -875,6 +898,8 @@ function setupContactForm() {
                 email: email,
 
                 phone: phone,
+
+                plan: plan,
 
                 goal: goal,
 
