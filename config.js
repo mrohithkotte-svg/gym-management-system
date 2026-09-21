@@ -57,17 +57,6 @@ const gymConfig = {
         "ironforgeGymEnquiries",
 
     /* ============================= */
-    /* DASHBOARD ACCESS & ACCOUNTS */
-    /* ============================= */
-
-    auth: {
-        enabled: false,
-        sessionStorageKey: "ironforge_admin_session"
-    },
-
-
-
-    /* ============================= */
     /* HERO */
     /* ============================= */
 

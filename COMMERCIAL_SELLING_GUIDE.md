@@ -36,9 +36,11 @@ Gym owners will want their own domain name (e.g., `www.metroflexgym.in`):
 ### 🔑 Option C: How the Client Accesses Their Admin Dashboard
 The Gym Owner or Manager gets 2 links:
 1. **Public Website**: `https://clientgymname.com` (for visitors to see programs and fill out join forms).
-2. **Private Admin Dashboard**: `https://clientgymname.com/dashboard.html` (or hosted on `admin.clientgymname.com`).
-   - The Gym Owner opens `dashboard.html` on their phone, laptop, or tablet.
+2. **Private Admin Dashboard**: `https://clientgymname.com/admin` (or hosted on `admin.clientgymname.com`).
+   - The Gym Owner opens `/admin` on their phone, laptop, or tablet and signs in.
    - They see all lead submissions, phone numbers, and can click **1-Click WhatsApp** to contact new leads immediately!
+
+The public site is static, so authentication is enforced by Netlify Functions before the dashboard HTML is served. Do not add credentials to `config.js`, HTML, or browser JavaScript.
 
 ---
 
@@ -47,7 +49,7 @@ The Gym Owner or Manager gets 2 links:
 When a new gym owner buys your solution, follow these 3 steps to deliver their custom site:
 
 ```
-[Step 1: Edit config.js] ➔ [Step 2: Connect Google Sheet] ➔ [Step 3: Deploy & Handover]
+[Step 1: Edit config.js] ➔ [Step 2: Connect Google Sheet] ➔ [Step 3: Configure Admin Auth] ➔ [Step 4: Deploy & Handover]
 ```
 
 1. **Customize Branding (`config.js`)**:
@@ -62,8 +64,16 @@ When a new gym owner buys your solution, follow these 3 steps to deliver their c
    - Copy `Code.gs` into **Extensions > Apps Script**, click **Deploy as Web App**.
    - Set access to *"Anyone"*, copy the Web App URL, and paste it into `config.js` (`googleSheetUrl`).
 
-3. **Hand Over to Client**:
-   - Send them their Admin Dashboard URL and Google Sheet link.
+3. **Configure Admin Authentication in Netlify**:
+   - Open the site's Netlify project and go to **Site configuration → Environment variables**.
+   - Add `ADMIN_USERNAME` with the owner's login name.
+   - Add `ADMIN_PASSWORD` with a strong password that is not used elsewhere.
+   - Add `ADMIN_SESSION_SECRET` with a long random value. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
+   - Redeploy after adding or changing these variables. The dashboard is served only after the server validates these credentials.
+
+4. **Hand Over to Client**:
+   - Send the public website URL and the private `/admin` URL separately.
+   - The owner can use **Log Out** in the dashboard sidebar to end the session.
    - **Result**: Every form submission now alerts the owner, appends to their Google Sheet, and appears in their Admin Dashboard!
 
 ---
