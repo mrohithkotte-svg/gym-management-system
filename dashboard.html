@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gym Admin Dashboard</title>
+
+    <script src="config.js"></script>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --accent: #ff3c00;
+            --accent-dark: #d92f00;
+            --bg-dark: #0b0b0b;
+            --panel-bg: #121212;
+            --border-color: #222222;
+            --text-color: #eeeeee;
+            --muted-color: #777777;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        /* ========================= */
+        /* SIDEBAR */
+        /* ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #111;
+            border-right: 1px solid var(--border-color);
+            padding: 30px 20px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .sidebar-label {
+            color: #666;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #1d1d1d;
+            color: white;
+            border-left: 3px solid var(--accent);
+        }
+
+
+        /* ========================= */
+        /* MAIN */
+        /* ========================= */
+
+        .main {
+            margin-left: 240px;
+            padding: 40px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .topbar p {
+            color: var(--muted-color);
+            margin-top: 4px;
+            font-size: 14px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #151515;
+            border: 1px solid #292929;
+            color: #aaa;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #25d366;
+            display: inline-block;
+        }
+
+        .status-dot.offline {
+            background: #ffaa00;
+        }
+
+
+        /* ========================= */
+        /* BUTTONS */
+        /* ========================= */
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 9px 16px;
+            border: 1px solid var(--border-color);
+            background: #181818;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.3s ease;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+            color: white;
+        }
+
+
+        /* ========================= */
+        /* STAT CARDS */
+        /* ========================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            border-radius: 6px;
+            transition: 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--muted-color);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 32px;
+            font-weight: 800;
+            margin-top: 10px;
+            color: white;
+        }
+
+        .stat-accent {
+            color: var(--accent);
+        }
+
+
+        /* ========================= */
+        /* DASHBOARD GRID */
+        /* ========================= */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 6px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .panel-header span {
+            color: #666;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+
+        /* ========================= */
+        /* GOAL CARDS */
+        /* ========================= */
+
+        .goal-item {
+            margin-bottom: 18px;
+        }
+
+        .goal-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .goal-name {
+            color: #bbb;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .goal-count {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .goal-bar {
+            width: 100%;
+            height: 6px;
+            background: #222;
+            overflow: hidden;
+            border-radius: 3px;
+        }
+
+        .goal-progress {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.8s ease;
+            border-radius: 3px;
+        }
+
+
+        /* ========================= */
+        /* SEARCH & FILTERS BAR */
+        /* ========================= */
+
+        .controls-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #181818;
+            border: 1px solid #333;
+            color: white;
+            padding: 10px 14px;
+            font-size: 13px;
+            border-radius: 4px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+        }
+
+        .filter-select {
+            background: #181818;
+            border: 1px solid #333;
+            color: white;
+            padding: 10px 14px;
+            font-size: 13px;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            border-color: var(--accent);
+        }
+
+
+        /* ========================= */
+        /* LEAD TABLE */
+        /* ========================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th {
+            text-align: left;
+            color: #777;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 14px 12px;
+            border-bottom: 1px solid #292929;
+        }
+
+        td {
+            padding: 14px 12px;
+            color: #ccc;
+            font-size: 13px;
+            border-bottom: 1px solid #1e1e1e;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: #161616;
+        }
+
+        .lead-name {
+            color: white;
+            font-weight: 700;
+        }
+
+        .goal-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(255, 60, 0, 0.15);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 60, 0, 0.3);
+        }
+
+        .status-select {
+            background: #1a1a1a;
+            color: white;
+            border: 1px solid #333;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .status-select.new { color: #ffaa00; border-color: #ffaa00; }
+        .status-select.contacted { color: #3b82f6; border-color: #3b82f6; }
+        .status-select.scheduled { color: #a855f7; border-color: #a855f7; }
+        .status-select.converted { color: #22c55e; border-color: #22c55e; }
+        .status-select.closed { color: #6b7280; border-color: #6b7280; }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background: #1f1f1f;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s ease;
+            border: 1px solid #333;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.wa:hover {
+            background: #25d366;
+            color: white;
+            border-color: #25d366;
+        }
+
+        .action-btn.phone:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .action-btn.delete:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+
+        /* ========================= */
+        /* EMPTY STATE */
+        /* ========================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #555;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: #888;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+
+        /* ========================= */
+        /* MOBILE */
+        /* ========================= */
+
+        @media (max-width: 1000px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 20px;
+            }
+            .logo {
+                margin-bottom: 20px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+        }
+
+        /* ========================= */
+        /* LOGIN SCREEN & AUTH STYLES */
+        /* ========================= */
+
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #141414;
+            border: 1px solid #282828;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 60, 0, 0.1);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .login-logo span {
+            color: var(--accent);
+        }
+
+        .login-subtitle {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .login-form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form-group label {
+            display: block;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .login-input {
+            width: 100%;
+            background: #1c1c1c;
+            border: 1px solid #333;
+            color: white;
+            padding: 12px 14px;
+            font-size: 14px;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(255, 60, 0, 0.3);
+        }
+
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .login-remember {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .login-remember input {
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .login-btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 60, 0, 0.3);
+        }
+
+        .login-btn-submit:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 60, 0, 0.4);
+        }
+
+        .login-error {
+            background: rgba(255, 60, 0, 0.15);
+            border: 1px solid rgba(255, 60, 0, 0.4);
+            color: #ff6b4a;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .login-hint-box {
+            margin-top: 25px;
+            padding: 12px;
+            background: #181818;
+            border: 1px solid #262626;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #777;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .login-hint-box strong {
+            color: #aaa;
+        }
+
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .user-badge-icon {
+            font-size: 14px;
+        }
+
+        .user-badge-name {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- ADMIN LOGIN SCREEN (Displayed when unauthenticated) -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <span id="loginLogoName">IRONFORGE</span><span id="loginLogoSuffix">.</span>
+                </div>
+                <p class="login-subtitle">Admin Portal — Authorised Access Only</p>
+            </div>
+
+            <div class="login-error" id="loginError">
+                Invalid username or password. Please try again.
+            </div>
+
+            <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                <div class="login-form-group">
+                    <label for="loginUsername">USERNAME / EMAIL</label>
+                    <input type="text" id="loginUsername" class="login-input" placeholder="Enter admin username" required autocomplete="username">
+                </div>
+
+                <div class="login-form-group">
+                    <label for="loginPassword">PASSWORD</label>
+                    <input type="password" id="loginPassword" class="login-input" placeholder="Enter account password" required autocomplete="current-password">
+                </div>
+
+                <div class="login-options">
+                    <label class="login-remember">
+                        <input type="checkbox" id="rememberMe">
+                        Keep me signed in
+                    </label>
+                    <a href="index.html" style="color:#777; text-decoration:none;">← Return to Website</a>
+                </div>
+
+                <button type="submit" class="login-btn-submit">
+                    SIGN IN TO DASHBOARD
+                </button>
+            </form>
+
+            <div class="login-hint-box">
+                🔑 <strong>Authorized Account Credentials:</strong><br>
+                Super Admin: <code>admin</code> / <code>ironforge2026</code><br>
+                Manager: <code>manager</code> / <code>gymflex123</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <span id="dashLogoName">IRONFORGE</span><span id="dashLogoSuffix">.</span>
+        </div>
+
+        <div class="sidebar-label">ADMIN PANEL</div>
+
+        <div class="sidebar-links">
+
+            <a href="#dashboard" class="sidebar-link active">
+                📊 Dashboard
+            </a>
+
+            <a href="index.html" class="sidebar-link">
+                🌐 View Website
+            </a>
+
+            <button onclick="logoutAdmin()" class="sidebar-link" style="background:transparent; border:none; width:100%; text-align:left; cursor:pointer; color:#ff6b4a; margin-top:20px;">
+                🔒 Sign Out
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+
+            <div>
+                <h1 id="dashTitle">Admin Dashboard</h1>
+                <p>Manage member enquiries, track lead status & sync with Google Sheets.</p>
+            </div>
+
+            <div class="topbar-actions">
+
+                <div class="user-badge" id="userBadge">
+                    <span class="user-badge-icon">👤</span>
+                    <span id="loggedInUserDisplay">Admin</span>
+                </div>
+
+                <div class="sync-badge" id="syncBadge">
+                    <span class="status-dot" id="syncDot"></span>
+                    <span id="syncText">Checking Sync...</span>
+                </div>
+
+                <button class="btn btn-primary" onclick="syncGoogleSheets()">
+                    🔄 Sync Sheets
+                </button>
+
+                <button class="btn" onclick="exportLeadsCSV()">
+                    📥 Export CSV
+                </button>
+
+                <button class="btn" onclick="logoutAdmin()" style="color:#ff6b4a; border-color:rgba(255, 60, 0, 0.4);" title="Log out of Dashboard">
+                    🔒 Logout
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <span class="stat-label">TOTAL LEADS</span>
+                <strong class="stat-number" id="totalLeads">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">TODAY'S LEADS</span>
+                <strong class="stat-number stat-accent" id="todayLeads">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">TOP GOAL</span>
+                <strong class="stat-number" id="topGoal">—</strong>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">CONVERTED LEADS</span>
+                <strong class="stat-number" id="convertedCount">0</strong>
+            </div>
+
+        </div>
+
+
+        <!-- DASHBOARD GRID -->
+        <div class="dashboard-grid">
+
+            <!-- GOALS BREAKDOWN -->
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2>Fitness Goals Breakdown</h2>
+                    <span>DEMAND BY GOAL</span>
+                </div>
+
+                <div class="goal-item">
+                    <div class="goal-top">
+                        <span class="goal-name">Weight Loss</span>
+                        <span class="goal-count" id="weightCount">0</span>
+                    </div>
+                    <div class="goal-bar"><div class="goal-progress" id="weightBar"></div></div>
+                </div>
+
+                <div class="goal-item">
+                    <div class="goal-top">
+                        <span class="goal-name">Muscle Gain</span>
+                        <span class="goal-count" id="muscleCount">0</span>
+                    </div>
+                    <div class="goal-bar"><div class="goal-progress" id="muscleBar"></div></div>
+                </div>
+
+                <div class="goal-item">
+                    <div class="goal-top">
+                        <span class="goal-name">Strength Training</span>
+                        <span class="goal-count" id="strengthCount">0</span>
+                    </div>
+                    <div class="goal-bar"><div class="goal-progress" id="strengthBar"></div></div>
+                </div>
+
+                <div class="goal-item">
+                    <div class="goal-top">
+                        <span class="goal-name">General Fitness</span>
+                        <span class="goal-count" id="fitnessCount">0</span>
+                    </div>
+                    <div class="goal-bar"><div class="goal-progress" id="fitnessBar"></div></div>
+                </div>
+
+                <div class="goal-item">
+                    <div class="goal-top">
+                        <span class="goal-name">Personal Training</span>
+                        <span class="goal-count" id="personalCount">0</span>
+                    </div>
+                    <div class="goal-bar"><div class="goal-progress" id="personalBar"></div></div>
+                </div>
+
+            </section>
+
+
+            <!-- QUICK INFOS & BACKEND STATUS -->
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2>Workflow & Sync Status</h2>
+                    <span>INTEGRATION</span>
+                </div>
+
+                <p style="color:#aaa; font-size:13px; line-height:1.7;">
+                    <strong>Form → Google Sheets → Dashboard</strong>
+                </p>
+                <p style="color:#888; font-size:13px; line-height:1.7; margin-top:10px;">
+                    When visitors submit the contact form on your website:
+                </p>
+                <ul style="color:#777; font-size:13px; line-height:1.8; margin-left:18px; margin-top:8px;">
+                    <li>Data automatically appends to your Google Sheet in real-time.</li>
+                    <li>Leads are backed up locally in browser storage.</li>
+                    <li>Click <strong>Sync Sheets</strong> anytime to fetch the latest leads across all devices.</li>
+                </ul>
+
+                <div style="margin-top:20px; padding:12px; background:#181818; border:1px solid #2a2a2a; border-radius:4px;">
+                    <span style="font-size:11px; color:var(--accent); font-weight:800; letter-spacing:1px; display:block; margin-bottom:4px;">GOOGLE SHEET ENDPOINT:</span>
+                    <span id="sheetUrlDisplay" style="font-size:11px; color:#aaa; word-break:break-all;">Configured</span>
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- LEADS MANAGEMENT PANEL -->
+        <section class="panel">
+
+            <div class="panel-header">
+                <h2>Enquiries & Leads</h2>
+
+                <button class="btn" onclick="clearAllLeads()" style="color:#ff3c00; border-color:#ff3c00;">
+                    🗑️ Clear All
+                </button>
+            </div>
+
+            <!-- CONTROLS BAR -->
+            <div class="controls-bar">
+
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by name, email, or phone..." onkeyup="renderLeadsTable()">
+                </div>
+
+                <select id="goalFilter" class="filter-select" onchange="renderLeadsTable()">
+                    <option value="ALL">All Fitness Goals</option>
+                    <option value="Weight Loss">Weight Loss</option>
+                    <option value="Muscle Gain">Muscle Gain</option>
+                    <option value="Strength Training">Strength Training</option>
+                    <option value="General Fitness">General Fitness</option>
+                    <option value="Personal Training">Personal Training</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <select id="statusFilter" class="filter-select" onchange="renderLeadsTable()">
+                    <option value="ALL">All Statuses</option>
+                    <option value="New">New</option>
+                    <option value="Contacted">Contacted</option>
+                    <option value="Trial Scheduled">Trial Scheduled</option>
+                    <option value="Converted">Converted</option>
+                    <option value="Closed">Closed</option>
+                </select>
+
+            </div>
+
+            <!-- TABLE CONTAINER -->
+            <div id="leadContent" class="table-container"></div>
+
+        </section>
+
+    </main>
+
+    <!-- LEAD DETAIL MODAL -->
+    <div class="modal-overlay" id="leadModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalLeadName">Lead Details</h2>
+                    <span style="font-size:12px; color:#888;" id="modalLeadDate">—</span>
+                </div>
+                <button class="modal-close" onclick="closeLeadModal()">×</button>
+            </div>
+            
+            <div class="modal-body-grid">
+                <div class="modal-info-item">
+                    <label>PHONE</label>
+                    <span id="modalLeadPhone">—</span>
+                </div>
+                <div class="modal-info-item">
+                    <label>EMAIL</label>
+                    <span id="modalLeadEmail">—</span>
+                </div>
+                <div class="modal-info-item">
+                    <label>GOAL</label>
+                    <span id="modalLeadGoal">—</span>
+                </div>
+                <div class="modal-info-item">
+                    <label>STATUS</label>
+                    <span id="modalLeadStatus">—</span>
+                </div>
+                <div class="modal-info-item modal-full-width">
+                    <label>CUSTOMER MESSAGE</label>
+                    <p style="font-size:0.9rem; color:#ccc; margin-top:5px; line-height:1.5;" id="modalLeadMessage">—</p>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <a id="modalWaBtn" href="#" target="_blank" rel="noopener" class="btn btn-primary" style="background:#25d366; border-color:#25d366;">
+                    💬 WhatsApp Lead
+                </a>
+                <a id="modalCallBtn" href="#" class="btn" style="border-color:#3b82f6; color:#3b82f6;">
+                    📞 Call Lead
+                </a>
+                <button class="btn" onclick="closeLeadModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+
+        /* ================================================= */
+        /* SETUP BRANDING & CONFIG */
+        /* ================================================= */
+
+        const storageKey = (typeof gymConfig !== "undefined" && gymConfig.storageKey) ? gymConfig.storageKey : "ironforgeGymEnquiries";
+        const googleSheetUrl = (typeof gymConfig !== "undefined" && gymConfig.googleSheetUrl) ? gymConfig.googleSheetUrl : "";
+
+        if (typeof gymConfig !== "undefined") {
+            if (gymConfig.gymName) document.getElementById("dashLogoName").textContent = gymConfig.gymName;
+            if (gymConfig.brandSuffix) document.getElementById("dashLogoSuffix").textContent = gymConfig.brandSuffix;
+            if (gymConfig.gymName) document.title = gymConfig.gymName + " Admin Dashboard";
+            if (gymConfig.accentColor) document.documentElement.style.setProperty("--accent", gymConfig.accentColor);
+            
+            const urlDisplay = document.getElementById("sheetUrlDisplay");
+            if (urlDisplay && googleSheetUrl) {
+                urlDisplay.textContent = googleSheetUrl.substring(0, 45) + "...";
+            }
+        }
+
+
+        /* ================================================= */
+        /* LOAD LEADS FROM LOCALSTORAGE */
+        /* ================================================= */
+
+        function getStoredLeads() {
+            try {
+                return JSON.parse(localStorage.getItem(storageKey)) || [];
+            } catch (err) {
+                return [];
+            }
+        }
+
+        function saveStoredLeads(leads) {
+            localStorage.setItem(storageKey, JSON.stringify(leads));
+        }
+
+        let allLeads = getStoredLeads();
+
+
+        /* ================================================= */
+        /* SYNC FROM GOOGLE SHEETS */
+        /* ================================================= */
+
+        async function syncGoogleSheets() {
+            const syncDot = document.getElementById("syncDot");
+            const syncText = document.getElementById("syncText");
+
+            if (!googleSheetUrl) {
+                if (syncDot) syncDot.className = "status-dot offline";
+                if (syncText) syncText.textContent = "Local Mode (No Sheet URL)";
+                return;
+            }
+
+            if (syncText) syncText.textContent = "Syncing with Google Sheets...";
+
+            try {
+                const response = await fetch(googleSheetUrl, { method: "GET" });
+                const result = await response.json();
+
+                if (result && result.result === "success" && Array.isArray(result.data)) {
+                    // Merge Google Sheets data with existing local leads
+                    const sheetLeads = result.data;
+                    
+                    // Update allLeads
+                    if (sheetLeads.length > 0) {
+                        allLeads = sheetLeads.map(lead => ({
+                            name: lead.name || "—",
+                            email: lead.email || "—",
+                            phone: lead.phone || "—",
+                            goal: lead.goal || "Not selected",
+                            message: lead.message || "—",
+                            date: lead.date || new Date().toLocaleString(),
+                            status: lead.status || "New"
+                        }));
+
+                        saveStoredLeads(allLeads);
+                    }
+
+                    if (syncDot) syncDot.className = "status-dot";
+                    if (syncText) syncText.textContent = `Synced (${allLeads.length} leads)`;
+                } else {
+                    if (syncDot) syncDot.className = "status-dot offline";
+                    if (syncText) syncText.textContent = "Local Storage Mode";
+                }
+            } catch (error) {
+                console.warn("Could not fetch from Google Sheets:", error);
+                if (syncDot) syncDot.className = "status-dot offline";
+                if (syncText) syncText.textContent = "Local Storage (Sync Error)";
+            }
+
+            loadDashboard();
+        }
+
+
+        /* ================================================= */
+        /* LOAD DASHBOARD */
+        /* ================================================= */
+
+        function loadDashboard() {
+            allLeads = getStoredLeads();
+
+            /* STATS */
+            document.getElementById("totalLeads").textContent = allLeads.length;
+
+            const todayStr = new Date().toLocaleDateString();
+            const todayCount = allLeads.filter(lead => {
+                try {
+                    return new Date(lead.date).toLocaleDateString() === todayStr;
+                } catch (e) {
+                    return false;
+                }
+            }).length;
+            document.getElementById("todayLeads").textContent = todayCount;
+
+            const convertedCount = allLeads.filter(lead => (lead.status || "").toLowerCase() === "converted").length;
+            document.getElementById("convertedCount").textContent = convertedCount;
+
+            /* GOAL BREAKDOWN */
+            const goals = {
+                "Weight Loss": 0,
+                "Muscle Gain": 0,
+                "Strength Training": 0,
+                "General Fitness": 0,
+                "Personal Training": 0
+            };
+
+            allLeads.forEach(lead => {
+                if (lead.goal && goals[lead.goal] !== undefined) {
+                    goals[lead.goal]++;
+                }
+            });
+
+            let topGoal = "—";
+            let maxCount = -1;
+            Object.keys(goals).forEach(g => {
+                if (goals[g] > maxCount && goals[g] > 0) {
+                    maxCount = goals[g];
+                    topGoal = g;
+                }
+            });
+            document.getElementById("topGoal").textContent = topGoal;
+
+            document.getElementById("weightCount").textContent = goals["Weight Loss"];
+            document.getElementById("muscleCount").textContent = goals["Muscle Gain"];
+            document.getElementById("strengthCount").textContent = goals["Strength Training"];
+            document.getElementById("fitnessCount").textContent = goals["General Fitness"];
+            document.getElementById("personalCount").textContent = goals["Personal Training"];
+
+            const total = allLeads.length;
+            const setBar = (id, count) => {
+                const pct = total > 0 ? (count / total) * 100 : 0;
+                const bar = document.getElementById(id);
+                if (bar) bar.style.width = pct + "%";
+            };
+
+            setBar("weightBar", goals["Weight Loss"]);
+            setBar("muscleBar", goals["Muscle Gain"]);
+            setBar("strengthBar", goals["Strength Training"]);
+            setBar("fitnessBar", goals["General Fitness"]);
+            setBar("personalBar", goals["Personal Training"]);
+
+            renderLeadsTable();
+        }
+
+
+        /* ================================================= */
+        /* RENDER TABLE WITH FILTERS & SEARCH */
+        /* ================================================= */
+
+        function renderLeadsTable() {
+            const container = document.getElementById("leadContent");
+            const searchVal = (document.getElementById("searchInput").value || "").toLowerCase().trim();
+            const goalVal = document.getElementById("goalFilter").value;
+            const statusVal = document.getElementById("statusFilter").value;
+
+            // Filter leads
+            let filtered = allLeads.filter((lead) => {
+                // Search filter
+                const matchesSearch = !searchVal || 
+                    (lead.name || "").toLowerCase().includes(searchVal) ||
+                    (lead.email || "").toLowerCase().includes(searchVal) ||
+                    (lead.phone || "").toLowerCase().includes(searchVal);
+
+                // Goal filter
+                const matchesGoal = (goalVal === "ALL") || (lead.goal === goalVal);
+
+                // Status filter
+                const leadStatus = lead.status || "New";
+                const matchesStatus = (statusVal === "ALL") || (leadStatus === statusVal);
+
+                return matchesSearch && matchesGoal && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <strong>No enquiries found</strong>
+                        Try adjusting your search query or filters.
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NAME</th>
+                            <th>PHONE / WHATSAPP</th>
+                            <th>EMAIL</th>
+                            <th>FITNESS GOAL</th>
+                            <th>STATUS</th>
+                            <th>MESSAGE</th>
+                            <th>DATE</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            filtered.slice().reverse().forEach((lead, idx) => {
+                // Find original index in allLeads array
+                const originalIndex = allLeads.indexOf(lead);
+                const currentStatus = lead.status || "New";
+                const statusClass = currentStatus.toLowerCase().split(' ')[0];
+
+                const cleanPhone = (lead.phone || "").replace(/\D/g, "");
+                const waMessage = encodeURIComponent(`Hi ${lead.name || "there"}, thank you for enquiring at ${gymConfig.gymName || "our gym"}! How can we assist with your ${lead.goal || "fitness"} goals?`);
+                const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${waMessage}` : "#";
+                const callUrl = cleanPhone ? `tel:${cleanPhone}` : "#";
+
+                tableHTML += `
+                    <tr>
+                        <td class="lead-name">${escapeHTML(lead.name || "—")}</td>
+                        <td>${escapeHTML(lead.phone || "—")}</td>
+                        <td>${escapeHTML(lead.email || "—")}</td>
+                        <td><span class="goal-tag">${escapeHTML(lead.goal || "Not selected")}</span></td>
+                        <td>
+                            <select class="status-select ${statusClass}" onchange="updateLeadStatus(${originalIndex}, this.value)">
+                                <option value="New" ${currentStatus === "New" ? "selected" : ""}>New</option>
+                                <option value="Contacted" ${currentStatus === "Contacted" ? "selected" : ""}>Contacted</option>
+                                <option value="Trial Scheduled" ${currentStatus === "Trial Scheduled" ? "selected" : ""}>Trial Scheduled</option>
+                                <option value="Converted" ${currentStatus === "Converted" ? "selected" : ""}>Converted</option>
+                                <option value="Closed" ${currentStatus === "Closed" ? "selected" : ""}>Closed</option>
+                            </select>
+                        </td>
+                        <td style="max-width:200px; font-size:12px; color:#aaa;">${escapeHTML(lead.message || "—")}</td>
+                        <td style="font-size:12px; color:#777;">${escapeHTML(lead.date || "—")}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="openLeadModal(${originalIndex})" title="View Lead Details">👁️</button>
+                                ${cleanPhone ? `<a href="${waUrl}" target="_blank" rel="noopener" class="action-btn wa" title="Chat on WhatsApp">💬</a>` : ""}
+                                ${cleanPhone ? `<a href="${callUrl}" class="action-btn phone" title="Call Lead">📞</a>` : ""}
+                                <button class="action-btn delete" onclick="deleteLead(${originalIndex})" title="Delete Lead">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+
+        /* ================================================= */
+        /* UPDATE LEAD STATUS */
+        /* ================================================= */
+
+        function updateLeadStatus(index, newStatus) {
+            if (allLeads[index]) {
+                allLeads[index].status = newStatus;
+                saveStoredLeads(allLeads);
+                loadDashboard();
+            }
+        }
+
+
+        /* ================================================= */
+        /* DELETE LEAD */
+        /* ================================================= */
+
+        function deleteLead(index) {
+            if (!confirm("Are you sure you want to delete this lead?")) return;
+            allLeads.splice(index, 1);
+            saveStoredLeads(allLeads);
+            loadDashboard();
+        }
+
+
+        /* ================================================= */
+        /* CLEAR ALL LEADS */
+        /* ================================================= */
+
+        function clearAllLeads() {
+            if (allLeads.length === 0) return;
+            if (!confirm("DELETE ALL LEADS? This action cannot be undone.")) return;
+            allLeads = [];
+            saveStoredLeads(allLeads);
+            loadDashboard();
+        }
+
+
+        /* ================================================= */
+        /* EXPORT LEADS TO CSV */
+        /* ================================================= */
+
+        function exportLeadsCSV() {
+            if (allLeads.length === 0) {
+                alert("No lead data available to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Name,Email,Phone,Fitness Goal,Status,Message,Date\n";
+
+            allLeads.forEach(lead => {
+                const name = `"${(lead.name || '').replace(/"/g, '""')}"`;
+                const email = `"${(lead.email || '').replace(/"/g, '""')}"`;
+                const phone = `"${(lead.phone || '').replace(/"/g, '""')}"`;
+                const goal = `"${(lead.goal || '').replace(/"/g, '""')}"`;
+                const status = `"${(lead.status || 'New').replace(/"/g, '""')}"`;
+                const message = `"${(lead.message || '').replace(/"/g, '""')}"`;
+                const date = `"${(lead.date || '').replace(/"/g, '""')}"`;
+
+                csvContent += `${name},${email},${phone},${goal},${status},${message},${date}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `gym_leads_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+
+        /* ================================================= */
+        /* LEAD DETAIL MODAL HANDLERS */
+        /* ================================================= */
+
+        function openLeadModal(index) {
+            const lead = allLeads[index];
+            if (!lead) return;
+
+            document.getElementById("modalLeadName").textContent = lead.name || "Enquiry Lead";
+            document.getElementById("modalLeadDate").textContent = "Received: " + (lead.date || "—");
+            document.getElementById("modalLeadPhone").textContent = lead.phone || "—";
+            document.getElementById("modalLeadEmail").textContent = lead.email || "—";
+            document.getElementById("modalLeadGoal").textContent = lead.goal || "Not selected";
+            document.getElementById("modalLeadStatus").textContent = lead.status || "New";
+            document.getElementById("modalLeadMessage").textContent = lead.message || "No message provided.";
+
+            const cleanPhone = (lead.phone || "").replace(/\D/g, "");
+            const waMsg = encodeURIComponent(`Hi ${lead.name || "there"}, thank you for reaching out to ${typeof gymConfig !== 'undefined' ? gymConfig.gymName : 'our gym'}! We saw your goal is ${lead.goal || 'fitness'}. How can we help you get started?`);
+            
+            const modalWaBtn = document.getElementById("modalWaBtn");
+            const modalCallBtn = document.getElementById("modalCallBtn");
+
+            if (cleanPhone) {
+                modalWaBtn.href = `https://wa.me/${cleanPhone}?text=${waMsg}`;
+                modalWaBtn.style.display = "inline-flex";
+                modalCallBtn.href = `tel:${cleanPhone}`;
+                modalCallBtn.style.display = "inline-flex";
+            } else {
+                modalWaBtn.style.display = "none";
+                modalCallBtn.style.display = "none";
+            }
+
+            document.getElementById("leadModal").classList.add("active");
+        }
+
+        function closeLeadModal() {
+            document.getElementById("leadModal").classList.remove("active");
+        }
+
+
+
+        /* ================================================= */
+        /* AUTHENTICATION & ACCESS CONTROL */
+        /* ================================================= */
+
+        const sessionKey = (typeof gymConfig !== "undefined" && gymConfig.auth && gymConfig.auth.sessionStorageKey) 
+            ? gymConfig.auth.sessionStorageKey 
+            : "ironforge_admin_session";
+
+        if (typeof gymConfig !== "undefined") {
+            const loginLogoName = document.getElementById("loginLogoName");
+            const loginLogoSuffix = document.getElementById("loginLogoSuffix");
+            if (loginLogoName && gymConfig.gymName) loginLogoName.textContent = gymConfig.gymName;
+            if (loginLogoSuffix && gymConfig.brandSuffix) loginLogoSuffix.textContent = gymConfig.brandSuffix;
+        }
+
+        function getAuthSession() {
+            try {
+                const sessionStr = sessionStorage.getItem(sessionKey) || localStorage.getItem(sessionKey);
+                return sessionStr ? JSON.parse(sessionStr) : null;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function checkDashboardAuth() {
+            const session = getAuthSession();
+            const loginScreen = document.getElementById("loginScreen");
+            const sidebar = document.querySelector(".sidebar");
+            const main = document.querySelector(".main");
+
+            if (session && session.username) {
+                if (loginScreen) loginScreen.style.display = "none";
+                if (sidebar) sidebar.style.display = "block";
+                if (main) main.style.display = "block";
+
+                const userDisplay = document.getElementById("loggedInUserDisplay");
+                if (userDisplay) {
+                    userDisplay.textContent = `${session.name || session.username} (${session.role || "Admin"})`;
+                }
+
+                syncGoogleSheets();
+            } else {
+                if (loginScreen) loginScreen.style.display = "flex";
+                if (sidebar) sidebar.style.display = "none";
+                if (main) main.style.display = "none";
+            }
+        }
+
+        function handleAdminLogin(event) {
+            if (event) event.preventDefault();
+
+            const usernameInput = document.getElementById("loginUsername");
+            const passwordInput = document.getElementById("loginPassword");
+            const rememberMeInput = document.getElementById("rememberMe");
+            const errorBox = document.getElementById("loginError");
+
+            const username = (usernameInput.value || "").trim();
+            const password = (passwordInput.value || "").trim();
+            const rememberMe = rememberMeInput ? rememberMeInput.checked : false;
+
+            const configuredAccounts = (typeof gymConfig !== "undefined" && gymConfig.auth && Array.isArray(gymConfig.auth.adminAccounts))
+                ? gymConfig.auth.adminAccounts
+                : [];
+
+            // Find matching authorized account
+            const matchedAccount = configuredAccounts.find(acc => 
+                acc.username.toLowerCase() === username.toLowerCase() && acc.password === password
+            );
+
+            if (matchedAccount) {
+                const sessionData = {
+                    username: matchedAccount.username,
+                    name: matchedAccount.name || matchedAccount.username,
+                    role: matchedAccount.role || "Admin",
+                    loginTime: new Date().toISOString()
+                };
+
+                if (rememberMe) {
+                    localStorage.setItem(sessionKey, JSON.stringify(sessionData));
+                    sessionStorage.removeItem(sessionKey);
+                } else {
+                    sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+                    localStorage.removeItem(sessionKey);
+                }
+
+                if (errorBox) errorBox.style.display = "none";
+                checkDashboardAuth();
+            } else {
+                if (errorBox) {
+                    errorBox.textContent = "Invalid credentials. Please check your username and password.";
+                    errorBox.style.display = "block";
+                }
+            }
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem(sessionKey);
+            localStorage.removeItem(sessionKey);
+            checkDashboardAuth();
+        }
+
+
+        /* ================================================= */
+        /* UTILS */
+        /* ================================================= */
+
+        function escapeHTML(str) {
+            return String(str ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* ================================================= */
+        /* INITIALIZE */
+        /* ================================================= */
+
+        document.addEventListener("DOMContentLoaded", () => {
+            checkDashboardAuth();
+        });
+
+    </script>
+
+</body>
+
+</html>
