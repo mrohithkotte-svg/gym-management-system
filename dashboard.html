@@ -13,6 +13,10 @@
     <title>Gym Admin Dashboard</title>
 
     <script src="config.js"></script>
+    <script src="admin-auth.js"></script>
+    <script>
+        requireAdminAuth();
+    </script>
 
     <style>
 
@@ -685,6 +689,10 @@
 
                 <button class="btn btn-primary" onclick="syncGoogleSheets()">
                     🔄 Sync Sheets
+                </button>
+
+                <button class="btn" type="button" onclick="logoutAdmin()">
+                    LOG OUT
                 </button>
 
             </div>

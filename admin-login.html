@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="config.js"></script>
+    <script src="admin-auth.js"></script>
+
+    <style>
+        .admin-login-page {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                linear-gradient(rgba(8, 8, 8, 0.84), rgba(8, 8, 8, 0.96)),
+                url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=85") center / cover;
+        }
+
+        .admin-login-card {
+            width: min(100%, 430px);
+            padding: 36px;
+            background: rgba(18, 18, 18, 0.96);
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: var(--radius);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+        }
+
+        .admin-login-brand {
+            display: inline-flex;
+            gap: 5px;
+            margin-bottom: 34px;
+            color: var(--white);
+            font-family: var(--font-heading);
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .admin-login-brand span {
+            color: var(--accent);
+        }
+
+        .admin-login-card h1 {
+            margin-bottom: 8px;
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            color: var(--white);
+        }
+
+        .admin-login-subtitle {
+            margin-bottom: 28px;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .admin-login-form {
+            display: grid;
+            gap: 18px;
+        }
+
+        .admin-login-field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .admin-login-field label {
+            color: var(--muted);
+            font-family: var(--font-heading);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .admin-login-field input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            outline: none;
+            background: var(--dark-2);
+            color: var(--white);
+        }
+
+        .admin-login-field input:focus {
+            border-color: var(--accent);
+        }
+
+        .admin-password-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-show-password {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .admin-login-error {
+            min-height: 20px;
+            color: #ff9b7a;
+            font-size: 0.82rem;
+        }
+
+        .admin-login-form .btn {
+            width: 100%;
+            min-height: 46px;
+        }
+
+        .admin-back-link {
+            display: block;
+            margin-top: 22px;
+            color: var(--muted);
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        .admin-back-link:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 520px) {
+            .admin-login-card {
+                padding: 28px 22px;
+            }
+        }
+    </style>
+</head>
+
+<body class="admin-login-page">
+    <main class="admin-login-card">
+        <div class="admin-login-brand">
+            <span id="loginGymName">IRONFORGE</span><span id="loginBrandSuffix"> FITNESS</span>
+        </div>
+
+        <h1>Admin Login</h1>
+        <p class="admin-login-subtitle">Sign in to manage your gym enquiries.</p>
+
+        <form class="admin-login-form" id="adminLoginForm" novalidate>
+            <div class="admin-login-field">
+                <label for="adminUsername">USERNAME</label>
+                <input id="adminUsername" name="username" type="text" autocomplete="username" required>
+            </div>
+
+            <div class="admin-login-field">
+                <div class="admin-password-row">
+                    <label for="adminPassword">PASSWORD</label>
+                    <label class="admin-show-password">
+                        <input id="showAdminPassword" type="checkbox">
+                        Show password
+                    </label>
+                </div>
+                <input id="adminPassword" name="password" type="password" autocomplete="current-password" required>
+            </div>
+
+            <p class="admin-login-error" id="adminLoginError" role="alert" aria-live="polite"></p>
+
+            <button class="btn btn-primary" type="submit">SIGN IN</button>
+        </form>
+
+        <a class="admin-back-link" href="index.html">Return to website</a>
+    </main>
+
+    <script>
+        const loginForm = document.getElementById("adminLoginForm");
+        const usernameInput = document.getElementById("adminUsername");
+        const passwordInput = document.getElementById("adminPassword");
+        const showPasswordInput = document.getElementById("showAdminPassword");
+        const loginError = document.getElementById("adminLoginError");
+
+        if (typeof gymConfig !== "undefined") {
+            document.title = `${gymConfig.gymName || "Gym"} Admin Login`;
+            document.getElementById("loginGymName").textContent = gymConfig.gymName || "GYM";
+            document.getElementById("loginBrandSuffix").textContent = gymConfig.brandSuffix || "";
+            document.documentElement.style.setProperty("--accent", gymConfig.accentColor || "#ff3c00");
+        }
+
+        if (isAdminAuthenticated()) {
+            window.location.replace(ADMIN_DASHBOARD_PAGE);
+        }
+
+        showPasswordInput.addEventListener("change", function () {
+            passwordInput.type = showPasswordInput.checked ? "text" : "password";
+        });
+
+        loginForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            loginError.textContent = "";
+
+            if (authenticateAdmin(usernameInput.value.trim(), passwordInput.value)) {
+                window.location.replace(ADMIN_DASHBOARD_PAGE);
+                return;
+            }
+
+            loginError.textContent = "Invalid username or password.";
+            passwordInput.select();
+        });
+    </script>
+</body>
+
+</html>
